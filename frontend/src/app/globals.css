@@ -1,0 +1,183 @@
+@import "tailwindcss";
+
+/* =========================
+   AGENTIC AI DESIGN TOKENS
+   ========================= */
+
+:root {
+  /* Core surfaces */
+  --background: 255 255 255;
+  --foreground: 17 24 39;
+
+  /* Brand / AI accent */
+  --primary: 99 102 241;     /* Indigo / AI blue */
+  --secondary: 14 165 233;   /* Cyan signal */
+  --accent: 168 85 247;      /* Intelligence / creativity */
+
+  /* UI neutrals */
+  --muted: 243 244 246;
+  --muted-foreground: 107 114 128;
+  --border: 229 231 235;
+
+  /* Semantic */
+  --success: 16 185 129;
+  --warning: 245 158 11;
+  --danger: 239 68 68;
+
+  /* Effects */
+  --radius: 14px;
+  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-ai: 0 0 0 1px rgba(99, 102, 241, 0.15),
+               0 10px 30px rgba(99, 102, 241, 0.25);
+}
+
+/* =========================
+   DARK MODE (PRIMARY)
+   ========================= */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: 10 10 15;
+    --foreground: 229 231 235;
+
+    --primary: 129 140 248;
+    --secondary: 56 189 248;
+    --accent: 192 132 252;
+
+    --muted: 24 24 27;
+    --muted-foreground: 161 161 170;
+    --border: 39 39 42;
+
+    --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.6);
+    --shadow-ai: 0 0 0 1px rgba(129, 140, 248, 0.25),
+                 0 0 40px rgba(129, 140, 248, 0.35);
+  }
+}
+
+/* =========================
+   BASE STYLES
+   ========================= */
+
+* {
+  border-color: rgb(var(--border));
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: rgb(var(--background));
+  color: rgb(var(--foreground));
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Inter,
+    Helvetica,
+    Arial,
+    sans-serif;
+  font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* =========================
+   AGENTIC UI PRIMITIVES
+   ========================= */
+
+/* Glass surface (agent panels, cards) */
+.glass {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.02)
+  );
+  backdrop-filter: blur(16px);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+}
+
+/* AI glow (active agent, running task) */
+.ai-glow {
+  box-shadow: var(--shadow-ai);
+}
+
+/* Subtle animated grid (backgrounds) */
+.agent-grid {
+  background-image:
+    linear-gradient(rgba(99, 102, 241, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.08) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* =========================
+   TEXT STYLES
+   ========================= */
+
+.heading-gradient {
+  background: linear-gradient(
+    90deg,
+    rgb(var(--primary)),
+    rgb(var(--accent))
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.muted {
+  color: rgb(var(--muted-foreground));
+}
+
+/* =========================
+   SCROLLBARS (DESKTOP)
+   ========================= */
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.35);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.6);
+}
+
+/* =========================
+   INPUTS & INTERACTION
+   ========================= */
+
+input,
+textarea,
+select {
+  background-color: rgb(var(--background));
+  color: rgb(var(--foreground));
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: rgb(var(--primary));
+  /* box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3); */
+}
+
+/* =========================
+   SELECTION
+   ========================= */
+
+::selection {
+  background: rgba(99, 102, 241, 0.3);
+}
