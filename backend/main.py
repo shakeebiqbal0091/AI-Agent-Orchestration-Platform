@@ -37,16 +37,61 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+class UserCreate(BaseModel):
+    email: str
+
+
+@app.post("/signup")
+def signup(user: UserCreate):
+    db = SessionLocal()
+    try:
+        existing = db.query(User).filter(User.email == user.email).first()  # pyright: ignore[reportUndefinedVariable]
+        if existing:
+            return {"message": "User already exists", "user_id": existing.id}
+
+        new_user = User(email=user.email)  # pyright: ignore[reportUndefinedVariable]
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+
+        # 🎯 Auto-create agents for specific users
+        if user.email == "shakeeb@gmail.com":
+            db.add(DBAgent(
+                user_id=new_user.id,
+                name="Math Agent",
+                role="Mathematics Expert",
+                instructions="You solve math problems step by step."
+            ))
+
+        elif user.email == "hassan@gmail.com":
+            db.add(DBAgent(
+                user_id=new_user.id,
+                name="Physics Agent",
+                role="Physics Expert",
+                instructions="You explain physics concepts clearly."
+            ))
+
+        db.commit()
+
+        return {
+            "message": "User created successfully",
+            "user_id": new_user.id
+        }
+
+    finally:
+        db.close()
+
 
 # ── Pydantic Models ──────────────────────────────────────────
 class AgentCreate(BaseModel):
+    user_id: int   # 🔑 REQUIRED
     name: str
     role: str
     instructions: str
     model: str = "claude-sonnet-4-20250514"
 
 class AgentResponse(BaseModel):
-    id: int
+    user_id: int
     name: str
     role: str
     instructions: str
@@ -60,6 +105,7 @@ class ChatMessageModel(BaseModel):
     content: str
 
 class ChatRequest(BaseModel):
+    user_id: int
     agent_id: int
     message: str
     history: List[ChatMessageModel] = []
@@ -93,6 +139,7 @@ def create_agent(agent: AgentCreate):
     db = SessionLocal()
     try:
         db_agent = DBAgent(
+            user_id=agent.user_id,   # 🔥 THIS LINE
             name=agent.name,
             role=agent.role,
             instructions=agent.instructions,
@@ -108,27 +155,31 @@ def create_agent(agent: AgentCreate):
     finally:
         db.close()
 
-@app.get("/agents/", response_model=List[AgentResponse])
-def list_agents():
-    """List all agents"""
+@app.get("/users/{user_id}/agents", response_model=List[AgentResponse])
+def list_user_agents(user_id: int):
     db = SessionLocal()
     try:
-        agents = db.query(DBAgent).all()
+        agents = db.query(DBAgent).filter(DBAgent.user_id == user_id).all()
         return agents
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching agents: {str(e)}")
     finally:
         db.close()
+
 
 @app.get("/agents/{agent_id}", response_model=AgentResponse)
 def get_agent(agent_id: int):
     """Get a specific agent by ID"""
     db = SessionLocal()
     try:
-        agent = db.query(DBAgent).filter(DBAgent.id == agent_id).first()
+        agent = (
+                db.query(DBAgent)
+                .filter(
+                    DBAgent.id == request.agent_id,  # pyright: ignore[reportUndefinedVariable]
+                    DBAgent.user_id == request.user_id  # pyright: ignore[reportUndefinedVariable]
+                )
+                .first()
+        )
         if not agent:
-            raise HTTPException(status_code=404, detail=f"Agent with id {agent_id} not found")
-        return agent
+            raise HTTPException(status_code=403, detail="Agent not accessible")
     except HTTPException:
         raise
     except Exception as e:

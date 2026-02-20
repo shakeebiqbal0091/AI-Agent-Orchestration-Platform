@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { api, Agent } from '@/lib/api';
 import { useRouter } from 'next/navigation';
+// src/app/layout.tsx
+import './globals.css';
 
 export default function HomePage() {
   const [agents, setAgents] = useState<Agent[]>([]);
